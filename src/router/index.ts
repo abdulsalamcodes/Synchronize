@@ -17,6 +17,16 @@ const router = createRouter({
       // which is lazy-loaded when the route is visited.
       component: () => import("../views/AboutView.vue"),
     },
+    {
+      path: "/habit-tracker",
+      name: "habit-tracker",
+      component: () => import("../views/TrackHabit.vue"),
+    },
+    {
+      path: "/to-do",
+      name: "To-do",
+      component: () => import("../views/ToDo.vue"),
+    },
   ],
 });
 

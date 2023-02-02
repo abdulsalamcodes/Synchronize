@@ -3,8 +3,8 @@
 <template>
   <main>
     <div class="boxWrapper">
-      <div class="box">To-Do App</div>
-      <div class="box">Habit Tracking App</div>
+      <RouterLink to="habit-tracker" class="box">Habit Tracking App</RouterLink>
+      <router-link to="/to-do" class="box">To-Do App</router-link>
     </div>
   </main>
 </template>

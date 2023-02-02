@@ -1,12 +1,8 @@
-<script setup lang="ts">
-import { RouterLink, RouterView } from "vue-router";
-</script>
-
 <template>
   <main class="mainWrapper">
     <header>
       <div class="wrapper">
-        <nav class="flex mb-4 gap-5">
+        <nav class="flex mb-4 gap-5 justify-between">
           <RouterLink to="/" class="btn btn-green">Home</RouterLink>
           <RouterLink to="/about" class="btn btn-green">About</RouterLink>
         </nav>
@@ -18,11 +14,15 @@ import { RouterLink, RouterView } from "vue-router";
 </template>
 
 <style>
+body {
+    font-family: 'Noto Sans', sans-serif;
+
+}
 .mainWrapper {
   @apply max-w-screen-lg mx-auto my-5;
 }
 .btn {
-  @apply py-2 px-4 font-semibold rounded-lg shadow-md;
+  @apply font-semibold rounded-lg;
 }
 .btn-green {
   @apply text-slate-500 hover:text-slate-700;
