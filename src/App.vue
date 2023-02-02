@@ -3,7 +3,7 @@
     <header>
       <div class="wrapper">
         <nav class="flex mb-4 gap-5 justify-between">
-          <RouterLink to="/" class="btn btn-green">Home</RouterLink>
+          <RouterLink to="/" class="btn btn-green">Synchronize</RouterLink>
           <RouterLink to="/about" class="btn btn-green">About</RouterLink>
         </nav>
       </div>
