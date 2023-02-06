@@ -3,7 +3,9 @@
     <header>
       <div class="wrapper">
         <nav class="flex mb-4 gap-5 justify-between">
-          <RouterLink to="/" class="btn btn-green">Synchronize</RouterLink>
+          <RouterLink to="/" class="btn btn-green"
+            >Synchronize</RouterLink
+          >
           <RouterLink to="/about" class="btn btn-green">About</RouterLink>
         </nav>
       </div>
@@ -15,8 +17,7 @@
 
 <style>
 body {
-    font-family: 'Noto Sans', sans-serif;
-
+  font-family: "Raleway", sans-serif;
 }
 .mainWrapper {
   @apply max-w-screen-lg mx-auto my-5;

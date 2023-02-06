@@ -3,22 +3,49 @@
 <template>
   <main>
     <div class="boxWrapper">
-      <RouterLink to="habit-tracker" class="box">Habit Tracking App</RouterLink>
-      <router-link to="/to-do" class="box">To-Do App</router-link>
-      <RouterLink to="habit-tracker" class="box">Note Taking App</RouterLink>
+      <RouterLink to="habit-tracker" class="box">
+        <p class="bold mb-4 text-lg font-medium">Habit Tracking App</p>
+        <p class="text-sm">
+          Transform your daily routine with our habit tracking app. Set your
+          goals, track your progress, and stay motivated with personalized
+          reminders and insights. Say goodbye to old habits and hello to a new,
+          more productive you
+        </p>
+      </RouterLink>
+      <router-link to="/to-do" class="box">
+        <p class="bold mb-4 text-lg font-medium">To-Do App</p>
+        <p class="text-sm">
+          Stay organized and on top of your tasks with our to-do list app.
+          Easily add, prioritize, and track your tasks, and enjoy peace of mind
+          knowing nothing will slip through the cracks.
+        </p>
+      </router-link>
       <RouterLink to="habit-tracker" class="box"
-        >Product Management App</RouterLink
-      >
+        ><p class="bold mb-4 text-lg font-medium">Task Management App</p>
+        <p class="text-sm">
+          Collaborate with your team and stay on track with our task management
+          board app. Assign tasks, set deadlines, and track progress in
+          real-time, all in one centralized location
+        </p>
+      </RouterLink>
+      <RouterLink to="habit-tracker" class="box"
+        ><p class="bold mb-4 text-lg font-medium">Note Taking App</p>
+        <p class="text-sm">
+          Capture your thoughts and ideas with ease using our note-taking app.
+          Enjoy a clean, intuitive interface for taking notes, organizing them
+          into notebooks, and finding what you need quickly and easily.
+        </p>
+      </RouterLink>
     </div>
   </main>
 </template>
 
 <style scoped>
 .boxWrapper {
-  @apply flex gap-2 w-full flex-wrap;
+  @apply grid grid-cols-2 gap-5 mt-10;
 }
 .box {
-  @apply rounded-md bg-slate-800 p-4
-   shadow text-yellow-50 h-24 w-full max-w-sm flex-1;
+  @apply rounded-md bg-gray-800 p-4
+   shadow text-gray-50 h-48;
 }
 </style>
