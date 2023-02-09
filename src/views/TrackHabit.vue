@@ -1,9 +1,45 @@
+<script setup>
+const habits = [
+  {
+    name: "Exercise daily",
+    id: "1",
+    daysCompleted: 3,
+    repeat: true,
+  },
+  {
+    name: "Meditate for 10 minutes",
+    id: "2",
+    daysCompleted: 5,
+    repeat: true,
+  },
+  {
+    name: "Read for 30 minutes",
+    id: "3",
+    daysCompleted: 2,
+    repeat: true,
+  },
+  {
+    name: "Drink 8 glasses of water",
+    id: "4",
+    daysCompleted: 6,
+    repeat: true,
+  },
+  {
+    name: "Go to bed before 10pm",
+    id: "5",
+    daysCompleted: 4,
+    repeat: true,
+  },
+];
+
+const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+</script>
+
 <template>
   <section class="flex gap-5">
     <main class="flex-1">
       <header class="header">
         <h1 class="heading">Good Afternoon, {{ username }}</h1>
-        <button class="bedtime">Add Your BedTime</button>
       </header>
       <section class="flex gap-5 items-center mt-8">
         <div class="headerTab">
@@ -21,75 +57,46 @@
           <thead>
             <tr class="bg-gray-800 text-white">
               <th class="px-4 py-2">Days of the Week</th>
-              <th class="px-4 py-2">Habit 1</th>
-              <th class="px-4 py-2">Habit 2</th>
-              <th class="px-4 py-2">Habit 3</th>
+              <td class="px-4 py-2" v-for="day in days" :key="day">
+                {{ day }}
+              </td>
             </tr>
           </thead>
           <tbody>
-            <tr class="border-t border-gray-700">
-              <td class="px-4 py-2">Monday</td>
-              <td class="px-4 py-2">
+            <tr
+              class="border-t border-gray-700"
+              v-for="habit in habits"
+              :key="habit.id"
+            >
+              <th class="px-4 text-left py-2">{{ habit.name }}</th>
+              <td class="px-4 py-2" v-for="day in days" :key="day">
                 <input
                   type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
+                  class="form-checkbox h-7 w-7 accent-green-600"
                   id="mon-habit1"
                 />
               </td>
-              <td class="px-4 py-2">
-                <input
-                  type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
-                  id="mon-habit2"
-                />
-              </td>
-              <td class="px-4 py-2">
-                <input
-                  type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
-                  id="mon-habit3"
-                />
-              </td>
             </tr>
-            <tr class="border-t border-gray-700">
-              <td class="px-4 py-2">Tuesday</td>
-              <td class="px-4 py-2">
-                <input
-                  type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
-                  id="tue-habit1"
-                />
-              </td>
-              <td class="px-4 py-2">
-                <input
-                  type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
-                  id="tue-habit2"
-                />
-              </td>
-              <td class="px-4 py-2">
-                <input
-                  type="checkbox"
-                  class="form-checkbox h-6 w-6 text-indigo-600"
-                  id="tue-habit3"
-                />
-              </td>
-            </tr>
-            <!-- and so on -->
           </tbody>
         </table>
       </section>
     </main>
     <aside class="w-1/3">
       <h2 class="text-2xl mb-5">Friday, 23</h2>
-      <div class="bg-gray-100 p-5">Hello From Aside</div>
+      <div class="bg-white border-gray-300 border-2 rounded-lg p-5">
+        <ul>
+          <li
+            class="border-l border-3 border-green-700 shadow-md rounded bg-green-500 text-white p-4 mb-3"
+            v-for="item in habits"
+            :key="item"
+          >
+            {{ item.name }}
+          </li>
+        </ul>
+      </div>
     </aside>
   </section>
 </template>
-
-<script setup>
-const username = "Abdulsalam";
-</script>
 
 <style>
 .bedtime {
