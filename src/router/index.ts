@@ -27,6 +27,11 @@ const router = createRouter({
       name: "To-do",
       component: () => import("../views/ToDo.vue"),
     },
+    {
+      path: "/note-app",
+      name: "note-app",
+      component: () => import("../views/NoteApp.vue"),
+    },
   ],
 });
 

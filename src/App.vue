@@ -3,10 +3,16 @@
     <header>
       <div class="wrapper">
         <nav class="flex mb-4 gap-5 justify-between">
-          <RouterLink to="/" class="btn btn-green"
+          <RouterLink
+            to="/"
+            class="btn text-lg text-grat-800 hover:text-gray-700"
             >Synchronize</RouterLink
           >
-          <RouterLink to="/about" class="btn btn-green">About</RouterLink>
+          <RouterLink
+            to="/about"
+            class="btn text-lg text-gray-800 hover:text-gray-700"
+            >About</RouterLink
+          >
         </nav>
       </div>
     </header>
@@ -24,8 +30,5 @@ body {
 }
 .btn {
   @apply font-semibold rounded-lg;
-}
-.btn-green {
-  @apply text-slate-500 hover:text-slate-700;
 }
 </style>

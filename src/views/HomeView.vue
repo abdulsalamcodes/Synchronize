@@ -4,6 +4,9 @@
   <main>
     <div class="boxWrapper">
       <RouterLink to="habit-tracker" class="box">
+        <div class="iconWrapper">
+          <vue-feather type="activity" />
+        </div>
         <p class="bold mb-4 text-lg font-medium">Habit Tracking App</p>
         <p class="text-sm">
           Transform your daily routine with our habit tracking app. Set your
@@ -13,6 +16,9 @@
         </p>
       </RouterLink>
       <router-link to="/to-do" class="box">
+        <div class="iconWrapper">
+          <vue-feather type="list" />
+        </div>
         <p class="bold mb-4 text-lg font-medium">To-Do App</p>
         <p class="text-sm">
           Stay organized and on top of your tasks with our to-do list app.
@@ -20,20 +26,27 @@
           knowing nothing will slip through the cracks.
         </p>
       </router-link>
-      <RouterLink to="habit-tracker" class="box"
-        ><p class="bold mb-4 text-lg font-medium">Task Management App</p>
-        <p class="text-sm">
-          Collaborate with your team and stay on track with our task management
-          board app. Assign tasks, set deadlines, and track progress in
-          real-time, all in one centralized location
-        </p>
-      </RouterLink>
-      <RouterLink to="habit-tracker" class="box"
-        ><p class="bold mb-4 text-lg font-medium">Note Taking App</p>
+      <RouterLink to="note-app" class="box">
+        <div class="iconWrapper">
+          <vue-feather type="book" />
+        </div>
+        <p class="bold mb-4 text-lg font-medium">Note Taking App</p>
         <p class="text-sm">
           Capture your thoughts and ideas with ease using our note-taking app.
           Enjoy a clean, intuitive interface for taking notes, organizing them
           into notebooks, and finding what you need quickly and easily.
+        </p>
+      </RouterLink>
+
+      <RouterLink to="note-app" class="box">
+        <div class="iconWrapper">
+          <vue-feather type="briefcase" />
+        </div>
+        <p class="bold mb-4 text-lg font-medium">Task Management App</p>
+        <p class="text-sm">
+          Collaborate with your team and stay on track with our task management
+          board app. Assign tasks, set deadlines, and track progress in
+          real-time, all in one centralized location
         </p>
       </RouterLink>
     </div>
@@ -41,11 +54,14 @@
 </template>
 
 <style scoped>
+.iconWrapper {
+  @apply bg-white h-12 w-12 rounded-lg mb-5 text-gray-800 items-center justify-center flex;
+}
 .boxWrapper {
-  @apply grid grid-cols-2 gap-5 mt-10;
+  @apply grid grid-cols-2 gap-10 mt-10;
 }
 .box {
   @apply rounded-md bg-gray-800 p-4
-   shadow text-gray-50 h-48;
+   shadow text-gray-50 h-56 hover:scale-105 transition-all;
 }
 </style>
