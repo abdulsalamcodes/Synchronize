@@ -32,15 +32,14 @@ const habits = [
   },
 ];
 const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const username = "Abdulsalam";
 </script>
 
 <template>
-  <section class="flex mt-10 gap-5 items-start h-screen">
+  <section class="flex mt-10 gap-5 items-start h-screen mainWrapper">
     <main class="flex-1">
+      <BackButton />
       <header class="header flex items-center gap-3">
-        <RouterLink to="/" class="mt-2">
-          <vue-feather type="arrow-left"></vue-feather>
-        </RouterLink>
         <h1 class="text-3xl text-gray-700">Good Afternoon, {{ username }}</h1>
       </header>
       <section class="flex gap-5 items-center mt-8">

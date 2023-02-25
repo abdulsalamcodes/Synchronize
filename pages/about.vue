@@ -1,12 +1,14 @@
+<!-- eslint-disable vue/multi-word-component-names -->
 <template>
-  <div class="about">
-    <h1>Synchronize Your Productivity with [Synchronize]!</h1>
-    <p>
+  <div class="mainWrapper">
+    <back-button />
+    <h1 class="text-lg mb-7 font-bold">Synchronize Your Productivity with <span class="font-italic">Synchronize</span>!</h1>
+    <p class="mb-5">
       Say goodbye to the hassle of juggling multiple productivity apps. With
       [Synchronize], you now have everything you need to boost your productivity
       in one place.
     </p>
-    <p>
+    <p class="mb-5">
       Enjoy a seamless experience with our collection of hand-picked
       productivity apps, including a to-do list manager, habit tracking app,
       note taking app, and project management tool. Whether you need to manage

@@ -1,9 +1,6 @@
 <template>
-  <div class="mt-10">
-    <RouterLink to="/" class="my-3 gap-3 flex">
-      <vue-feather type="arrow-left"></vue-feather>
-      <p>Back</p>
-    </RouterLink>
+  <div class="mt-10 mainWrapper">
+    <BackButton />
     <main class="grid grid-cols-1 md:grid-cols-5 rounded-md min-h-screen">
       <section
         class="col-start-1 text-white col-end-2 md:col-start-1 md:col-end-2 bg-gray-800 rounded p-5 h-5/6"

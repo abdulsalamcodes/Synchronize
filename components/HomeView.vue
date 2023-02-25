@@ -3,9 +3,9 @@
 <template>
   <main>
     <div class="boxWrapper">
-      <RouterLink to="habit-tracker" class="box">
+      <NuxtLink to="/habit-tracker" class="box">
         <div class="iconWrapper">
-          <vue-feather type="activity" />
+          <Icon name="fe:activity" />
         </div>
         <p class="bold mb-4 text-lg font-medium">Habit Tracking App</p>
         <p class="text-sm">
@@ -14,10 +14,10 @@
           reminders and insights. Say goodbye to old habits and hello to a new,
           more productive you
         </p>
-      </RouterLink>
-      <router-link to="/to-do" class="box">
+      </NuxtLink>
+      <NuxtLink to="/to-do" class="box">
         <div class="iconWrapper">
-          <vue-feather type="list" />
+          <Icon name="fe:list-bullet" />
         </div>
         <p class="bold mb-4 text-lg font-medium">To-Do App</p>
         <p class="text-sm">
@@ -25,10 +25,10 @@
           Easily add, prioritize, and track your tasks, and enjoy peace of mind
           knowing nothing will slip through the cracks.
         </p>
-      </router-link>
-      <RouterLink to="note-app" class="box">
+      </NuxtLink>
+      <NuxtLink to="/note-app" class="box">
         <div class="iconWrapper">
-          <vue-feather type="book" />
+          <Icon name="fe:book" />
         </div>
         <p class="bold mb-4 text-lg font-medium">Note Taking App</p>
         <p class="text-sm">
@@ -36,11 +36,11 @@
           Enjoy a clean, intuitive interface for taking notes, organizing them
           into notebooks, and finding what you need quickly and easily.
         </p>
-      </RouterLink>
+      </NuxtLink>
 
-      <RouterLink to="note-app" class="box">
+      <NuxtLink to="/task-manager" class="box">
         <div class="iconWrapper">
-          <vue-feather type="briefcase" />
+          <Icon name="fe:shopping-bag" />
         </div>
         <p class="bold mb-4 text-lg font-medium">Task Management App</p>
         <p class="text-sm">
@@ -48,7 +48,7 @@
           board app. Assign tasks, set deadlines, and track progress in
           real-time, all in one centralized location
         </p>
-      </RouterLink>
+      </NuxtLink>
     </div>
   </main>
 </template>
