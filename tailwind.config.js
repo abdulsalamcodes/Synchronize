@@ -2,7 +2,11 @@
 module.exports = {
   content: [],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        raleway: 'monospace',
+      }
+    },
   },
   plugins: [],
 };

@@ -1,124 +1,136 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useDraggable } from '@vueuse/core'
-const columns = [
+import { reactive, ref, onMounted } from "vue";
+
+interface Task {
+  title: string;
+  description: string;
+  assignee: string;
+  status: string;
+}
+
+interface Column {
+  title: string;
+  id: string;
+}
+
+const tasks = reactive<Task[]>([
+  {
+    title: "Task 1",
+    description: "This is the description for Task 1",
+    assignee: "John Doe",
+    status: "to-do",
+  },
+]);
+
+
+const columns = ref<Column[]>([
   {
     title: "To Do",
-    tasks: [
-      {
-        title: "Task 1",
-        description: "This is the description for Task 1",
-        assignee: "John Doe",
-      },
-      {
-        title: "Task 2",
-        description: "This is the description for Task 2",
-        assignee: "Jane Smith",
-      },
-    ],
+    id: "to-do",
   },
   {
     title: "In Progress",
-    tasks: [
-      {
-        title: "Task 3",
-        description: "This is the description for Task 3",
-        assignee: "Bob Johnson",
-      },
-    ],
+    id: "in-progress",
   },
   {
     title: "Done",
-    tasks: [
-      {
-        title: "Task 4",
-        description: "This is the description for Task 4",
-        assignee: "Alice Williams",
-      },
-    ],
+    id: "done",
   },
-];
+]);
 
-const el = ref<HTMLElement | null>(null)
 
-// `style` will be a helper computed for `left: ?px; top: ?px;`
-const { x, y, style } = useDraggable(el, {
-  initialValue: { x: 40, y: 40 },
-})
+const progressColumnEl = ref(null);
+const doneColumnEl = ref(null);
+
+function initializeRefs() {
+  progressColumnEl.value = document.getElementById("column-in-progress");
+  doneColumnEl.value = document.getElementById("column-done");
+}
+
+onMounted(initializeRefs);
+
+function updateTaskStatus(event, taskIndex) {
+  const progressSectionPos = progressColumnEl.value.getBoundingClientRect();
+  const doneSectionPos = doneColumnEl.value.getBoundingClientRect();
+
+  if (event.screenX >= doneSectionPos.left) {
+    tasks[taskIndex].status = "done";
+  } else if (event.screenX >= progressSectionPos.left) {
+    tasks[taskIndex].status = "in-progress";
+  } else {
+    tasks[taskIndex].status = "to-do";
+  }
+}
+
+function onDragging(event, taskIndex) {
+  updateTaskStatus(event, taskIndex);
+}
 </script>
 
-<template>
-  <!-- <div ref="el" :style="style" style="position: fixed">
-    Drag me! I am at {{x}}, {{y}} -->
-  
 
-    <div class="flex justify-center items-center min-h-screen bg-gray-100" >
-    <div class="bg-white rounded-lg shadow-xl p-6 max-w-5xl w-full">
-      <div class="flex items-center justify-between mb-6">
-        <h1 class="text-2xl font-bold text-gray-800">Task Manager</h1>
-        <button
-        ref="el" :style="style" style="position: fixed"
-          class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
-          @click="onAddTask()"
-        >
-          Add Task
-        </button>
-      </div>
-      <div class="flex overflow-x-auto">
-        <div
-          class="w-80 bg-gray-200 rounded-lg shadow p-4 mr-4"
-          v-for="(column, index) in columns"
-          :key="index"
-        >
-          <h2 class="text-lg font-bold text-gray-800 mb-4">
-            {{ column.title }}
-          </h2>
-          <!-- <draggable
-            v-model="column.tasks"
-            v-bind="dragOptions"
-            :move="onMove"
-            group="tasks"
-            @start="isDragging.value= true"
-            @end="isDragging.value = false"
-          > -->
-            <!-- <transition-group> -->
+<template>
+  <main class="flex flex-col min-h-screen bg-gray-100 p-7">
+    <div class="max-w-5xl w-full m-auto min-h-screen">
+      <BackButton />
+      <section class="bg-gray-700 rounded-lg shadow-xl p-6">
+        <header class="flex items-center justify-between mb-6">
+          <h1 class="text-2xl font-bold text-gray-50">Task Manager</h1>
+          <button
+            class="bg-gray-100 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
+            @click="onAddTask()"
+          >
+            Add Task
+          </button>
+        </header>
+        <section class="flex overflow-x-auto">
+          <div
+            class="w-80 bg-gray-200 rounded-lg shadow p-4 mr-4"
+            v-for="(column, index) in columns"
+            :id="`column-${column.id}`"
+            :key="index"
+          >
+            <h2 class="text-lg font-bold text-gray-800 mb-4" :aria-label="`${column.title} column`">
+              {{ column.title }}
+            </h2>
+            <div
+              class="mb-4"
+              v-for="(task, taskIndex) in tasks.filter(
+                (t) => t.status === column.id
+              )"
+              :key="taskIndex"
+            >
               <div
-                
-                class="mb-4"
-                v-for="(task, taskIndex) in column.tasks"
-                :key="taskIndex"
+                class="bg-white rounded-lg shadow p-4 cursor-move"
+                draggable="true"
+                @dragend="(e) => onDragging(e, taskIndex)"
+                :aria-label="`${task.title} task, ${column.title} column`"
               >
-                <div class="bg-white rounded-lg shadow p-4">
-                  <h3 class="text-md font-bold text-gray-800 mb-2">
-                    {{ task.title }}
-                  </h3>
-                  <p class="text-gray-600">{{ task.description }}</p>
-                  <div class="flex items-center justify-between mt-4">
-                    <span class="text-sm text-gray-500">{{
-                      task.assignee
-                    }}</span>
-                    <div class="flex items-center">
-                      <button
-                        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
-                        @click="onEditTask(task)"
-                      >
-                        Edit
-                      </button>
-                      <button
-                        class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
-                        @click="onDeleteTask(column, task)"
-                      >
-                        Delete
-                      </button>
-                    </div>
+                <h3 class="text-md font-bold text-gray-800 mb-2">{{ task.title }}</h3>
+                <p class="text-gray-600">{{ task.description }}</p>
+                <div class="flex items-center justify-between mt-4">
+                  <span class="text-sm text-gray-500">{{ task.assignee }}</span>
+                  <div class="flex items-center">
+                    <button
+                      class="bg-gray-700 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
+                      @click="onEditTask(task)"
+                      :aria-label="`Edit ${task.title} task`"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
+                      @click="onDeleteTask(column, task)"
+                      :aria-label="`Delete ${task.title} task`"
+                    >
+                      Delete
+                    </button>
                   </div>
-                <!-- </div> -->
+                </div>
               </div>
-              </div>
-            <!-- </transition-group> -->
-          <!-- </draggable> -->
-        </div>
-      </div>
+            </div>
+          </div>
+        </section>
+      </section>
     </div>
-  </div>
+  </main>
 </template>
