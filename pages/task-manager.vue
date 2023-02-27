@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { reactive, ref, onMounted } from "vue";
-
+const client = useSupabaseClient();
 interface Task {
   title: string;
   description: string;
@@ -22,7 +22,6 @@ const tasks = reactive<Task[]>([
   },
 ]);
 
-
 const columns = ref<Column[]>([
   {
     title: "To Do",
@@ -38,9 +37,8 @@ const columns = ref<Column[]>([
   },
 ]);
 
-
-const progressColumnEl = ref(null);
-const doneColumnEl = ref(null);
+const progressColumnEl = ref<HTMLElement | null>(null);
+const doneColumnEl = ref<HTMLElement | null>(null);
 
 function initializeRefs() {
   progressColumnEl.value = document.getElementById("column-in-progress");
@@ -49,24 +47,48 @@ function initializeRefs() {
 
 onMounted(initializeRefs);
 
-function updateTaskStatus(event, taskIndex) {
-  const progressSectionPos = progressColumnEl.value.getBoundingClientRect();
-  const doneSectionPos = doneColumnEl.value.getBoundingClientRect();
+function updateTaskStatus(event: DragEvent, taskIndex: number) {
+  const progressSectionPos = progressColumnEl.value?.getBoundingClientRect();
+  const doneSectionPos = doneColumnEl.value?.getBoundingClientRect();
 
-  if (event.screenX >= doneSectionPos.left) {
-    tasks[taskIndex].status = "done";
-  } else if (event.screenX >= progressSectionPos.left) {
-    tasks[taskIndex].status = "in-progress";
-  } else {
-    tasks[taskIndex].status = "to-do";
+  if (doneSectionPos && progressSectionPos) {
+    if (event.screenX >= doneSectionPos.left) {
+      tasks[taskIndex].status = "done";
+    } else if (event.screenX >= progressSectionPos.left) {
+      tasks[taskIndex].status = "in-progress";
+    } else {
+      tasks[taskIndex].status = "to-do";
+    }
   }
 }
 
-function onDragging(event, taskIndex) {
+function onDragging(event: DragEvent, taskIndex: number) {
   updateTaskStatus(event, taskIndex);
 }
-</script>
 
+const onAddTask = async () => {
+  const body = {
+    title: "Task 2",
+    description: "Today is the day of Election is the description for Task 2",
+    assignee: "Akin Doe",
+    status: "in-progress",
+  };
+
+  // const { data, error } = await client
+  // .from('Task')
+  // .insert([
+  //   { title: 'Title', description: 'otherValue',
+  //    status: 'to-do',
+  //    assignee: 'john doe' },
+  // ])
+
+  const { data: tasks, error: taskError } = await client
+  .from('Task')
+  .select('*')
+
+  console.log("Task ", tasks, taskError);
+};
+</script>
 
 <template>
   <main class="flex flex-col min-h-screen bg-gray-100 p-7">
@@ -89,7 +111,10 @@ function onDragging(event, taskIndex) {
             :id="`column-${column.id}`"
             :key="index"
           >
-            <h2 class="text-lg font-bold text-gray-800 mb-4" :aria-label="`${column.title} column`">
+            <h2
+              class="text-lg font-bold text-gray-800 mb-4"
+              :aria-label="`${column.title} column`"
+            >
               {{ column.title }}
             </h2>
             <div
@@ -105,7 +130,9 @@ function onDragging(event, taskIndex) {
                 @dragend="(e) => onDragging(e, taskIndex)"
                 :aria-label="`${task.title} task, ${column.title} column`"
               >
-                <h3 class="text-md font-bold text-gray-800 mb-2">{{ task.title }}</h3>
+                <h3 class="text-md font-bold text-gray-800 mb-2">
+                  {{ task.title }}
+                </h3>
                 <p class="text-gray-600">{{ task.description }}</p>
                 <div class="flex items-center justify-between mt-4">
                   <span class="text-sm text-gray-500">{{ task.assignee }}</span>
