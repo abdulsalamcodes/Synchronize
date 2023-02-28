@@ -90,6 +90,6 @@ export default {
 
 <style>
 .note-taking-app {
-  font-family: sans-serif;
+  font-family: 'Raleway', sans-serif;
 }
 </style>

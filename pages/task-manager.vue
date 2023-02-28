@@ -13,7 +13,7 @@ interface Column {
   id: string;
 }
 
-const tasks = reactive<Task[]>([
+let tasks = ref<Task[]>([
   {
     title: "Task 1",
     description: "This is the description for Task 1",
@@ -53,11 +53,11 @@ function updateTaskStatus(event: DragEvent, taskIndex: number) {
 
   if (doneSectionPos && progressSectionPos) {
     if (event.screenX >= doneSectionPos.left) {
-      tasks[taskIndex].status = "done";
+      tasks.value[taskIndex].status = "done";
     } else if (event.screenX >= progressSectionPos.left) {
-      tasks[taskIndex].status = "in-progress";
+      tasks.value[taskIndex].status = "in-progress";
     } else {
-      tasks[taskIndex].status = "to-do";
+      tasks.value[taskIndex].status = "to-do";
     }
   }
 }
@@ -77,16 +77,17 @@ const onAddTask = async () => {
   // const { data, error } = await client
   // .from('Task')
   // .insert([
-  //   { title: 'Title', description: 'otherValue',
-  //    status: 'to-do',
-  //    assignee: 'john doe' },
+  //   { title: 'Syncronize', description: 'Use have to syncronize',
+  //    status: 'in-progress',
+  //    assignee: 'Akin doe' },
   // ])
 
-  const { data: tasks, error: taskError } = await client
-  .from('Task')
-  .select('*')
+  let { data: Task, error } = await client.from("Task").select("*");
+  if (Task) {
+    tasks.value = Task;
+  }
 
-  console.log("Task ", tasks, taskError);
+  console.log("Task ", Task);
 };
 </script>
 
@@ -117,44 +118,48 @@ const onAddTask = async () => {
             >
               {{ column.title }}
             </h2>
-            <div
-              class="mb-4"
-              v-for="(task, taskIndex) in tasks.filter(
-                (t) => t.status === column.id
-              )"
-              :key="taskIndex"
-            >
+            <section class="max-h-screen overflow-auto">
               <div
-                class="bg-white rounded-lg shadow p-4 cursor-move"
-                draggable="true"
-                @dragend="(e) => onDragging(e, taskIndex)"
-                :aria-label="`${task.title} task, ${column.title} column`"
+                class="mb-4"
+                v-for="(task, taskIndex) in tasks.filter(
+                  (t) => t.status === column.id
+                )"
+                :key="taskIndex"
               >
-                <h3 class="text-md font-bold text-gray-800 mb-2">
-                  {{ task.title }}
-                </h3>
-                <p class="text-gray-600">{{ task.description }}</p>
-                <div class="flex items-center justify-between mt-4">
-                  <span class="text-sm text-gray-500">{{ task.assignee }}</span>
-                  <div class="flex items-center">
-                    <button
-                      class="bg-gray-700 hover:bg-blue-600 text-white font-bold py-1 px-2 rounded mr-2"
-                      @click="onEditTask(task)"
-                      :aria-label="`Edit ${task.title} task`"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      class="bg-red-500 hover:bg-red-600 text-white font-bold py-1 px-2 rounded"
-                      @click="onDeleteTask(column, task)"
-                      :aria-label="`Delete ${task.title} task`"
-                    >
-                      Delete
-                    </button>
+                <div
+                  class="bg-white rounded-lg shadow p-4 cursor-move"
+                  draggable="true"
+                  @dragend="(e) => onDragging(e, taskIndex)"
+                  :aria-label="`${task.title} task, ${column.title} column`"
+                >
+                  <h3 class="text-md font-bold text-gray-800 mb-2">
+                    {{ task.title }}
+                  </h3>
+                  <p class="text-gray-600">{{ task.description }}</p>
+                  <div class="flex items-center justify-between mt-4">
+                    <span class="text-sm text-gray-500">{{
+                      task.assignee
+                    }}</span>
+                    <div class="flex items-center">
+                      <button
+                        class="bg-gray-700 hover:bg-gray-200 text-white hover:text-gray-700 font-medium py-1 px-2 rounded mr-2"
+                        @click="onEditTask(task)"
+                        :aria-label="`Edit ${task.title} task`"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2 rounded"
+                        @click="onDeleteTask(column, task)"
+                        :aria-label="`Delete ${task.title} task`"
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
+            </section>
           </div>
         </section>
       </section>

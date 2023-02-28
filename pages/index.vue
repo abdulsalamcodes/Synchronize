@@ -1,5 +1,10 @@
 <!-- eslint-disable vue/multi-word-component-names -->
+<script setup>
+
+</script>
+
 <template>
+
   <main class="mainWrapper">
     <header>
       <div class="wrapper">
@@ -21,7 +26,7 @@
 
 <style>
 body {
-font-family: 'Lato', sans-serif;
+  font-family: "Raleway", sans-serif;
 }
 .mainWrapper {
   @apply max-w-screen-lg mx-auto my-5;
