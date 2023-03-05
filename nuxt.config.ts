@@ -1,10 +1,16 @@
 import { defineNuxtConfig } from 'nuxt/config'
+import { resolve } from 'path'
 
 export default defineNuxtConfig({
     modules: ["@nuxtjs/tailwindcss", "nuxt-icon", "@vueuse/nuxt", "@nuxtjs/supabase"],
     // serverMiddleware: [
     //     "~/api/index.js"
     // ],
+    // alias: {
+    //     'images': fileURLToPath(new URL('./assets/images', import.meta.url)),
+    //     'style': fileURLToPath(new URL('./assets/style', import.meta.url)),
+    //     'data': fileURLToPath(new URL('./assets/other/data', import.meta.url))
+    //   },
     app: {
         head: {
             title: 'Syncronize',

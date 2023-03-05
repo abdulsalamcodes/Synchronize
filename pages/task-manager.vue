@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { reactive, ref, onMounted } from "vue";
+import { reactive, ref, onMounted, watch } from "vue";
 const client = useSupabaseClient();
 interface Task {
+  id: string;
   title: string;
   description: string;
   assignee: string;
@@ -13,14 +14,7 @@ interface Column {
   id: string;
 }
 
-let tasks = ref<Task[]>([
-  {
-    title: "Task 1",
-    description: "This is the description for Task 1",
-    assignee: "John Doe",
-    status: "to-do",
-  },
-]);
+let tasks = ref<Task[]>([]);
 
 const columns = ref<Column[]>([
   {
@@ -37,77 +31,104 @@ const columns = ref<Column[]>([
   },
 ]);
 
-const progressColumnEl = ref<HTMLElement | null>(null);
+const inProgressColumnEl = ref<HTMLElement | null>(null);
 const doneColumnEl = ref<HTMLElement | null>(null);
 
-function initializeRefs() {
-  progressColumnEl.value = document.getElementById("column-in-progress");
+async function initializeRefs() {
+  fetchTasks();
+  inProgressColumnEl.value = document.getElementById("column-in-progress");
   doneColumnEl.value = document.getElementById("column-done");
 }
+const fetchTasks = async () => {
+  const { data: fetchedTasks, error: taskFetchError } =
+    await useSupabaseClient()?.from("Task").select("*");
+
+  if (fetchedTasks) {
+    tasks.value = fetchedTasks;
+  }
+};
+
+watch(tasks, (newValues) => {
+  tasks.value = newValues;
+});
 
 onMounted(initializeRefs);
 
-function updateTaskStatus(event: DragEvent, taskIndex: number) {
-  const progressSectionPos = progressColumnEl.value?.getBoundingClientRect();
-  const doneSectionPos = doneColumnEl.value?.getBoundingClientRect();
+async function updateTaskStatus(event: DragEvent, id: string) {
+  event.preventDefault();
+  const inProgressPosition = inProgressColumnEl.value?.getBoundingClientRect();
+  const donePosition = doneColumnEl.value?.getBoundingClientRect();
+  const currentTask = tasks.value.find((task) => task.id === id);
+  let newStatus: string = "to-do";
 
-  if (doneSectionPos && progressSectionPos) {
-    if (event.screenX >= doneSectionPos.left) {
-      tasks.value[taskIndex].status = "done";
-    } else if (event.screenX >= progressSectionPos.left) {
-      tasks.value[taskIndex].status = "in-progress";
+  if (donePosition && inProgressPosition) {
+    if (event.screenX >= donePosition.left) {
+      newStatus = "done";
+    } else if (event.screenX >= inProgressPosition.left) {
+      newStatus = "in-progress";
     } else {
-      tasks.value[taskIndex].status = "to-do";
+      newStatus = "to-do";
     }
   }
-}
-
-function onDragging(event: DragEvent, taskIndex: number) {
-  updateTaskStatus(event, taskIndex);
-}
-
-const onAddTask = async () => {
-  const body = {
-    title: "Task 2",
-    description: "Today is the day of Election is the description for Task 2",
-    assignee: "Akin Doe",
-    status: "in-progress",
-  };
-
-  // const { data, error } = await client
-  // .from('Task')
-  // .insert([
-  //   { title: 'Syncronize', description: 'Use have to syncronize',
-  //    status: 'in-progress',
-  //    assignee: 'Akin doe' },
-  // ])
-
-  let { data: Task, error } = await client.from("Task").select("*");
-  if (Task) {
-    tasks.value = Task;
+  if (currentTask) {
+    currentTask.status = newStatus;
+    // @ts-ignore
+    await client.from("Task").update({ status: newStatus }).eq("id", id);
   }
+}
+async function deleteTask(id: string) {
+  await client.from("Task").delete().eq("id", id);
+  await fetchTasks();
+}
 
-  console.log("Task ", Task);
+function onDragEnd(event: DragEvent, id: string) {
+  updateTaskStatus(event, id);
+}
+function onDragStart(event: DragEvent, id: string) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.style.opacity = "0.11";
+    console.log("user", event.screenX, event.screenY, el);
+  }
+}
+
+let showModal = ref(false);
+
+const handleShowModal = () => {
+  showModal.value = true;
 };
+const handleCloseModal = () => {
+  showModal.value = false;
+};
+
+const onAddTask = () => {
+  fetchTasks();
+  handleCloseModal();
+};
+
+const title = "Add New Task";
 </script>
 
 <template>
+  <vue-modal :title="title" :visible="showModal" @close="handleCloseModal">
+    <create-task-form :onAddTask="onAddTask" />
+  </vue-modal>
   <main class="flex flex-col min-h-screen bg-gray-100 p-7">
     <div class="max-w-5xl w-full m-auto min-h-screen">
       <BackButton />
-      <section class="bg-gray-700 rounded-lg shadow-xl p-6">
+      <section class="bg-gray-700 rounded-lg shadow-xl contentWrapper p-6">
         <header class="flex items-center justify-between mb-6">
           <h1 class="text-2xl font-bold text-gray-50">Task Manager</h1>
           <button
             class="bg-gray-100 hover:bg-gray-400 text-gray-700 font-bold py-2 px-4 rounded"
-            @click="onAddTask()"
+            @click="handleShowModal('My Modal Title')"
           >
             Add Task
           </button>
         </header>
-        <section class="flex overflow-x-auto">
+        <section class="flex overflow-x-auto overflow-y-hidden columnsWrapper">
           <div
-            class="w-80 bg-gray-200 rounded-lg shadow p-4 mr-4"
+            class="w-80 bg-gray-200 h-full rounded-lg shadow p-4 pb-10 mr-4"
             v-for="(column, index) in columns"
             :id="`column-${column.id}`"
             :key="index"
@@ -118,18 +139,19 @@ const onAddTask = async () => {
             >
               {{ column.title }}
             </h2>
-            <section class="max-h-screen overflow-auto">
+            <section class="overflow-auto relative h-full">
               <div
                 class="mb-4"
-                v-for="(task, taskIndex) in tasks.filter(
-                  (t) => t.status === column.id
-                )"
-                :key="taskIndex"
+                v-for="task in tasks.filter((t) => t.status === column.id)"
+                :key="task.id"
               >
                 <div
                   class="bg-white rounded-lg shadow p-4 cursor-move"
                   draggable="true"
-                  @dragend="(e) => onDragging(e, taskIndex)"
+                  :id="task.id"
+                  @dragstart="(e) => onDragStart(e, task.id)"
+                  @dragover="(event) => event.preventDefault()"
+                  @dragend="(e) => onDragEnd(e, task.id)"
                   :aria-label="`${task.title} task, ${column.title} column`"
                 >
                   <h3 class="text-md font-bold text-gray-800 mb-2">
@@ -150,7 +172,7 @@ const onAddTask = async () => {
                       </button>
                       <button
                         class="bg-red-500 hover:bg-red-600 text-white font-medium py-1 px-2 rounded"
-                        @click="onDeleteTask(column, task)"
+                        @click="() => deleteTask(task.id)"
                         :aria-label="`Delete ${task.title} task`"
                       >
                         Delete
@@ -166,3 +188,12 @@ const onAddTask = async () => {
     </div>
   </main>
 </template>
+
+<style scoped>
+.contentWrapper {
+  height: 85vh;
+}
+.columnsWrapper {
+  height: 90%;
+}
+</style>
