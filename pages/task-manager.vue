@@ -16,29 +16,34 @@ interface Column {
 
 let tasks = ref<Task[]>([]);
 
+const TODO_ID = "to-do";
+const INPROGRESS_ID = "in-progress";
+const DONE_ID = "done";
+
 const columns = ref<Column[]>([
   {
     title: "To Do",
-    id: "to-do",
+    id: TODO_ID,
   },
   {
     title: "In Progress",
-    id: "in-progress",
+    id: INPROGRESS_ID,
   },
   {
     title: "Done",
-    id: "done",
+    id: DONE_ID,
   },
 ]);
 
 const inProgressColumnEl = ref<HTMLElement | null>(null);
 const doneColumnEl = ref<HTMLElement | null>(null);
+const dragedOver = ref("");
+const showModal = ref(false);
 
-async function initializeRefs() {
-  fetchTasks();
-  inProgressColumnEl.value = document.getElementById("column-in-progress");
-  doneColumnEl.value = document.getElementById("column-done");
-}
+watch(tasks, (newValues) => {
+  tasks.value = newValues;
+});
+
 const fetchTasks = async () => {
   const { data: fetchedTasks, error: taskFetchError } =
     await useSupabaseClient()?.from("Task").select("*");
@@ -48,51 +53,68 @@ const fetchTasks = async () => {
   }
 };
 
-watch(tasks, (newValues) => {
-  tasks.value = newValues;
-});
+async function initializeRefs() {
+  fetchTasks();
+  inProgressColumnEl.value = document.getElementById(INPROGRESS_ID);
+  doneColumnEl.value = document.getElementById(DONE_ID);
+}
 
 onMounted(initializeRefs);
 
-async function updateTaskStatus(event: DragEvent, id: string) {
-  event.preventDefault();
-  const inProgressPosition = inProgressColumnEl.value?.getBoundingClientRect();
+const getTargetThreshold = (id: string) => {
+  const progressPosition = inProgressColumnEl.value?.getBoundingClientRect();
   const donePosition = doneColumnEl.value?.getBoundingClientRect();
-  const currentTask = tasks.value.find((task) => task.id === id);
-  let newStatus: string = "to-do";
+  let el = document.getElementById(id);
+  const elementMidWidth = (el?.clientWidth || 0) / 2;
+  const progressThreshold = (progressPosition?.left ?? 0) + elementMidWidth;
+  const doneThreshold = (donePosition?.left ?? 0) + elementMidWidth;
 
-  if (donePosition && inProgressPosition) {
-    if (event.screenX >= donePosition.left) {
-      newStatus = "done";
-    } else if (event.screenX >= inProgressPosition.left) {
-      newStatus = "in-progress";
-    } else {
-      newStatus = "to-do";
-    }
+  return { done: doneThreshold, progress: progressThreshold };
+};
+
+async function updateTaskStatus(event: DragEvent, id: string) {
+  const currentTask = tasks.value.find((task) => task.id === id);
+  let newStatus: string = TODO_ID;
+
+  if (event.clientX >= getTargetThreshold(id).done) {
+    newStatus = DONE_ID;
+  } else if (event.clientX >= getTargetThreshold(id).progress) {
+    newStatus = INPROGRESS_ID;
+  } else {
+    newStatus = TODO_ID;
   }
+
   if (currentTask) {
     currentTask.status = newStatus;
     // @ts-ignore
     await client.from("Task").update({ status: newStatus }).eq("id", id);
   }
 }
+
+function onDrag(event: DragEvent, id: string) {
+  if (event.clientX >= getTargetThreshold(id).done) {
+    dragedOver.value = DONE_ID;
+  } else if (event.clientX >= getTargetThreshold(id).progress) {
+    dragedOver.value = INPROGRESS_ID;
+  } else {
+    dragedOver.value = TODO_ID;
+  }
+}
+
+function onDragEnd(event: DragEvent, id: string) {
+  updateTaskStatus(event, id);
+  dragedOver.value = "";
+}
+
 async function deleteTask(id: string) {
   await client.from("Task").delete().eq("id", id);
   await fetchTasks();
 }
 
-function onDragEnd(event: DragEvent, id: string) {
-  updateTaskStatus(event, id);
-}
-function onDragStart(event: DragEvent, id: string) {
-  const el = document.getElementById(id);
-  if (el) {
-    el.style.opacity = "0.11";
-    console.log("user", event.screenX, event.screenY, el);
-  }
-}
-
-let showModal = ref(false);
+const onAddTask = () => {
+  fetchTasks();
+  handleCloseModal();
+};
 
 const handleShowModal = () => {
   showModal.value = true;
@@ -100,13 +122,6 @@ const handleShowModal = () => {
 const handleCloseModal = () => {
   showModal.value = false;
 };
-
-const onAddTask = () => {
-  fetchTasks();
-  handleCloseModal();
-};
-
-const title = "Add New Task";
 </script>
 
 <template>
@@ -128,10 +143,17 @@ const title = "Add New Task";
         </header>
         <section class="flex overflow-x-auto overflow-y-hidden columnsWrapper">
           <div
-            class="w-80 bg-gray-200 h-full rounded-lg shadow p-4 pb-10 mr-4"
+            :class="`w-80 border-4 border-gray-200 bg-gray-200 h-full rounded-lg shadow p-4 pb-10 mr-4 ${
+              dragedOver === column.id ? 'border-red-500' : 'bg-gray-200'
+            }`"
             v-for="(column, index) in columns"
-            :id="`column-${column.id}`"
+            :id="column.id"
             :key="index"
+            @dragover="
+              (ev) => {
+                ev.preventDefault();
+              }
+            "
           >
             <h2
               class="text-lg font-bold text-gray-800 mb-4"
@@ -149,8 +171,7 @@ const title = "Add New Task";
                   class="bg-white rounded-lg shadow p-4 cursor-move"
                   draggable="true"
                   :id="task.id"
-                  @dragstart="(e) => onDragStart(e, task.id)"
-                  @dragover="(event) => event.preventDefault()"
+                  @drag="(ev) => onDrag(ev, id)"
                   @dragend="(e) => onDragEnd(e, task.id)"
                   :aria-label="`${task.title} task, ${column.title} column`"
                 >

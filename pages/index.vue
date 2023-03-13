@@ -1,10 +1,7 @@
 <!-- eslint-disable vue/multi-word-component-names -->
-<script setup>
-
-</script>
+<script setup></script>
 
 <template>
-
   <main class="mainWrapper">
     <header>
       <div class="wrapper">
@@ -26,7 +23,10 @@
 
 <style>
 body {
-  font-family: "Raleway", sans-serif;
+  font-family: "Chakra Petch", sans-serif;
+}
+* {
+  font-family: "Chakra Petch", sans-serif;
 }
 .mainWrapper {
   @apply max-w-screen-lg mx-auto my-5;

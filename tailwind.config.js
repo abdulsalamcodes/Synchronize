@@ -4,8 +4,8 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        raleway: 'monospace',
-      }
+        syne: "Syne",
+      },
     },
   },
   plugins: [],
