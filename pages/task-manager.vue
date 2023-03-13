@@ -66,8 +66,8 @@ const getTargetThreshold = (id: string) => {
   const donePosition = doneColumnEl.value?.getBoundingClientRect();
   let el = document.getElementById(id);
   const elementMidWidth = (el?.clientWidth || 0) / 2;
-  const progressThreshold = (progressPosition?.left ?? 0) + elementMidWidth;
-  const doneThreshold = (donePosition?.left ?? 0) + elementMidWidth;
+  const progressThreshold = progressPosition?.left ?? 0;
+  const doneThreshold = donePosition?.left ?? 0;
 
   return { done: doneThreshold, progress: progressThreshold };
 };
