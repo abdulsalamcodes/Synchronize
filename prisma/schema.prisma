@@ -11,9 +11,22 @@ datasource db {
 }
 
 model Task {
-  id            String   @id @default(uuid())
-  title         String
-  description   String
-  status        String
-  assignee      String
+  id          String @id @default(uuid())
+  title       String
+  description String
+  status      String
+  assignee    String
+}
+
+model Note {
+  id       String   @id @default(uuid())
+  title    String
+  content  String
+  cretedAt DateTime @default(now())
+}
+
+model Todo {
+  id     String @id @default(uuid())
+  title  String
+  status String
 }

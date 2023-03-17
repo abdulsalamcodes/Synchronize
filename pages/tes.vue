@@ -14,12 +14,7 @@ interface Column {
   id: string;
 }
 
-let tasks = ref<Task[]>([]);
-let taskLoading = ref<boolean>(false);
-const inProgressColumnEl = ref<HTMLElement | null>(null);
-const doneColumnEl = ref<HTMLElement | null>(null);
-const dragedOver = ref("");
-const showModal = ref(false);
+let tasks = ref<Task[] | null>(null);
 
 const TODO_ID = "to-do";
 const INPROGRESS_ID = "in-progress";
@@ -40,19 +35,22 @@ const columns = ref<Column[]>([
   },
 ]);
 
+const inProgressColumnEl = ref<HTMLElement | null>(null);
+const doneColumnEl = ref<HTMLElement | null>(null);
+const dragedOver = ref("");
+const showModal = ref(false);
+
 watch(tasks, (newValues) => {
   tasks.value = newValues;
 });
 
 const fetchTasks = async () => {
-  taskLoading.value = true;
   const { data: fetchedTasks, error: taskFetchError } = await client
     ?.from("Task")
     .select("*");
 
   if (fetchedTasks) {
     tasks.value = fetchedTasks;
-    taskLoading.value = false;
   }
 };
 
@@ -76,7 +74,7 @@ const getTargetThreshold = (id: string) => {
 };
 
 async function updateTaskStatus(event: DragEvent, id: string) {
-  const currentTask = tasks.value.find((task) => task.id === id);
+  const currentTask = tasks.value?.find((task) => task.id === id);
   let newStatus: string = TODO_ID;
 
   if (event.clientX >= getTargetThreshold(id).done) {
@@ -145,7 +143,7 @@ const handleCloseModal = () => {
           </button>
         </header>
         <section
-          v-if="!taskLoading"
+          v-if="tasks"
           class="flex overflow-x-auto overflow-y-hidden columnsWrapper"
         >
           <div
@@ -211,7 +209,7 @@ const handleCloseModal = () => {
             </section>
           </div>
         </section>
-        <div v-else class="text-center">
+        <div v-else>
           <loader />
         </div>
       </section>
