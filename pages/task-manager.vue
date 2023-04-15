@@ -16,8 +16,6 @@ interface Column {
 
 let tasks = ref<Task[]>([]);
 let taskLoading = ref<boolean>(false);
-const inProgressColumnEl = ref<HTMLElement | null>(null);
-const doneColumnEl = ref<HTMLElement | null>(null);
 const dragedOver = ref("");
 const showModal = ref(false);
 
@@ -58,17 +56,17 @@ const fetchTasks = async () => {
 
 async function initializeRefs() {
   fetchTasks();
-  inProgressColumnEl.value = document.getElementById(INPROGRESS_ID);
-  doneColumnEl.value = document.getElementById(DONE_ID);
 }
 
 onMounted(initializeRefs);
 
 const getTargetThreshold = (id: string) => {
-  const progressPosition = inProgressColumnEl.value?.getBoundingClientRect();
-  const donePosition = doneColumnEl.value?.getBoundingClientRect();
-  let el = document.getElementById(id);
-  const elementMidWidth = (el?.clientWidth || 0) / 2;
+  const progressEl = document.getElementById(INPROGRESS_ID);
+  const doneEl = document.getElementById(DONE_ID);
+
+  const progressPosition = progressEl?.getBoundingClientRect();
+  const donePosition = doneEl?.getBoundingClientRect();
+
   const progressThreshold = progressPosition?.left ?? 0;
   const doneThreshold = donePosition?.left ?? 0;
 
@@ -95,6 +93,8 @@ async function updateTaskStatus(event: DragEvent, id: string) {
 }
 
 function onDrag(event: DragEvent, id: string) {
+  console.log(event.clientX);
+
   if (event.clientX >= getTargetThreshold(id).done) {
     dragedOver.value = DONE_ID;
   } else if (event.clientX >= getTargetThreshold(id).progress) {
