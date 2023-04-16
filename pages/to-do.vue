@@ -1,3 +1,64 @@
+<script setup lang="ts">
+import { uuid } from "vue-uuid";
+
+// types
+interface TodoItem {
+  id: string;
+  title: string;
+  createdAt: Date;
+  status: string;
+  repeat: boolean;
+}
+// state variables.
+const client = useSupabaseClient();
+const task = ref("");
+const todoItems = ref<TodoItem[]>([]);
+const todoLoading = ref(false);
+
+// functions.
+const fetchTodoItems = async () => {
+  todoLoading.value = true;
+  const { data: fetchedTodoItems, error: taskFetchError } = await client
+    ?.from("Todo")
+    .select("*");
+
+  if (fetchedTodoItems) {
+    todoItems.value = fetchedTodoItems;
+    todoLoading.value = false;
+  }
+};
+
+const addTodoItem = async () => {
+  const newTodoItem = {
+    id: uuid.v4(),
+    title: task.value,
+    createdAt: new Date(),
+    status: "todo",
+    repeat: false,
+  };
+  // @ts-ignore
+  const { data, error } = await client?.from("Todo").insert(newTodoItem);
+  if (!error) {
+    todoItems.value.push(newTodoItem);
+    fetchTodoItems();
+  }
+};
+
+async function initializeRefs() {
+  fetchTodoItems();
+}
+function addTask(e: any) {
+  task.value = e?.target?.value;
+}
+
+function onEnter() {
+  addTodoItem();
+  task.value = "";
+}
+
+onMounted(initializeRefs);
+</script>
+
 <template>
   <div class="mt-10 mainWrapper">
     <BackButton />
@@ -42,38 +103,32 @@
           <div class="flex gap-3 mb-5 font-bold text-lg">
             <vue-feather type="list" class="mt-1" />
             <h2>My Day</h2>
+            {{ task }}
           </div>
           <div
             class="w-full py-2 px-5 gap-5 items-center flex bg-white rounded-md"
           >
             <vue-feather type="plus" />
             <input
-              v-model="task"
               class="py-2 w-full text-gray-700 focus:outline-none focus:shadow-outline"
               type="text"
-              placeholder="Add Task"
+              :value="task"
+              @input="addTask"
+              @keyup.enter="onEnter"
             />
           </div>
         </div>
 
         <div class="mt-10">
           <h3 class="text-lg mb-3">Tasks</h3>
-          <div>
-            <div class="w-full mb-5 p-5 gap-3 flex bg-white rounded-md">
+          <div class="overflow-y-scroll h-full">
+            <div
+              class="w-full mb-5 p-5 gap-3 flex bg-white rounded-md"
+              v-for="todo in todoItems"
+              :key="todo.id"
+            >
               <vue-feather type="circle" />
-              <p>Eat Money And Sleep</p>
-            </div>
-            <div class="w-full mb-5 p-5 gap-3 flex bg-white rounded-md">
-              <vue-feather type="circle" />
-              <p>Eat Money And Sleep</p>
-            </div>
-            <div class="w-full mb-5 p-5 gap-3 flex bg-white rounded-md">
-              <vue-feather type="circle" />
-              <p>Eat Money And Sleep</p>
-            </div>
-            <div class="w-full mb-5 p-5 gap-3 flex bg-white rounded-md">
-              <vue-feather type="circle" />
-              <p>Eat Money And Sleep</p>
+              <p>{{ todo.title }}</p>
             </div>
           </div>
         </div>
@@ -81,11 +136,6 @@
     </main>
   </div>
 </template>
-
-<script setup>
-const search = "";
-const task = "";
-</script>
 
 <style>
 input[type="text"] {
